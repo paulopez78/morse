@@ -14,32 +14,33 @@
      public static void main(String[] args) throws IOException {
          codes = createCodes();
          dictionary = readDictionary("/users/pau/morse/src/main/resources/dictionary.txt");
-         generateItem(0, 1, "", "");
+         nextCode(0, 1, "", "");
      }
 
-    private static void generateItem(int index, int length, String word, String sentence) {
-        if (dictionary.contains(word)) {
-            sentence = sentence + " " + word;
-            word = "";
-        }
+     private static void nextCode(int index, int length, String word, String sentence) {
+         boolean outOfBounds = index + length > text.length();
 
-        boolean outOfBounds = index + length > text.length();
-        if (outOfBounds || !anyWordStartsWith(word)) {
-            if (outOfBounds)
-            {
-                System.out.println(sentence);
-            }
-            return;
-        }
-        else
-        {
-            String code = text.substring(index, index + length);
-            if (codes.containsKey(code)) {
-                generateItem(index + length, 1, word.concat(codes.get(code)), sentence);
-                generateItem(index, length + 1, word, sentence);
-            }
-        }
-    }
+         if (dictionary.contains(word)) {
+             sentence = sentence + " " + word;
+             word = "";
+             if (outOfBounds)
+             {
+                 System.out.println(sentence);
+             }
+         }
+
+         if (outOfBounds || !anyWordStartsWith(word)) {
+             return;
+         }
+         else
+         {
+             String code = text.substring(index, index + length);
+             if (codes.containsKey(code)) {
+                 nextCode(index + length, 1, word.concat(codes.get(code)), sentence);
+                 nextCode(index, length + 1, word, sentence);
+             }
+         }
+     }
 
     private static boolean anyWordStartsWith(String prefix)
     {
