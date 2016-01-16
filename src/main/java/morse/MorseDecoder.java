@@ -1,17 +1,20 @@
-package morse;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+        package morse;
+
+        import java.io.IOException;
+        import java.nio.charset.Charset;
+        import java.nio.file.Files;
+        import java.nio.file.Paths;
+        import java.util.HashMap;
+        import java.util.List;
+        import java.util.Map;
 
 public class MorseDecoder {
 
     //private static String text = ".--..-..-.-.-----.-----....--...-.-.-..-....--.-......----.";
-    private static String text = "....---.-...-";
+    private static String text = ".--..-..-.-.-----.-----.";
+
+    //private static String text = "....";
 
     private static int MAX_LENGTH = 4;
     private static Map<String,String> codes;
@@ -27,20 +30,17 @@ public class MorseDecoder {
         boolean outOfBounds = index+length > text.length();
         boolean maxLength = length > MAX_LENGTH;
 
-        if (index == 0)
-        {
-            parentItem = "";
-        }
-
         if (!outOfBounds && !maxLength && anyWordStartsWith(parentItem))
         {
+            if (dictionary.contains(parentItem))
+            {
+                System.out.println(String.format("%s",parentItem));
+            }
+
             String item = text.substring(index, index + length);
             if (codes.containsKey(item))
             {
-                String decodedItem = codes.get(item).toLowerCase();
-                //System.out.println(String.format("\ri:%s, l:%s, item:%s",index,length, decodedItem));
-
-                if (!generateItem(index + length, 1, parentItem.concat(decodedItem)))
+                if (!generateItem(index + length, 1, parentItem.concat(codes.get(item).toLowerCase())))
                 {
                     return generateItem(index,length + 1, parentItem);
                 }
@@ -56,11 +56,6 @@ public class MorseDecoder {
         }
         else
         {
-            if (dictionary.contains(parentItem))
-            {
-                System.out.println(parentItem);
-            }
-
             return false;
         }
     }
