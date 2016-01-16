@@ -1,20 +1,16 @@
+ package morse;
 
-        package morse;
-
-        import java.io.IOException;
-        import java.nio.charset.Charset;
-        import java.nio.file.Files;
-        import java.nio.file.Paths;
-        import java.util.HashMap;
-        import java.util.List;
-        import java.util.Map;
+ import java.io.IOException;
+ import java.nio.charset.Charset;
+ import java.nio.file.Files;
+ import java.nio.file.Paths;
+ import java.util.HashMap;
+ import java.util.List;
+ import java.util.Map;
 
 public class MorseDecoder {
 
-    //private static String text = ".--..-..-.-.-----.-----....--...-.-.-..-....--.-......----.";
-    private static String text = ".--..-..-.-.-----.-----.";
-
-    //private static String text = "....";
+    private static String text = ".--..-..-.-.-----.-----....--...-.-.-..-....--.-......----.";
 
     private static int MAX_LENGTH = 4;
     private static Map<String,String> codes;
@@ -23,39 +19,41 @@ public class MorseDecoder {
     {
         codes = createCodes();
         dictionary = readDictionary("/users/pau/morse/src/main/resources/dictionary.txt");
-        generateItem(0,1,"");
+        generateItem(0,1,"","");
     }
 
-    private static boolean generateItem(int index, int length, String parentItem){
-        boolean outOfBounds = index+length > text.length();
+    private static boolean generateItem(int index, int length, String word, String sentence) {
+        boolean outOfBounds = index + length > text.length();
         boolean maxLength = length > MAX_LENGTH;
 
-        if (!outOfBounds && !maxLength && anyWordStartsWith(parentItem))
-        {
-            if (dictionary.contains(parentItem))
-            {
-                System.out.println(String.format("%s",parentItem));
+        if (!outOfBounds && !maxLength && anyWordStartsWith(word)) {
+            if (dictionary.contains(word)) {
+                sentence = sentence + " " + word;
+                word = "";
             }
 
-            String item = text.substring(index, index + length);
-            if (codes.containsKey(item))
-            {
-                if (!generateItem(index + length, 1, parentItem.concat(codes.get(item).toLowerCase())))
-                {
-                    return generateItem(index,length + 1, parentItem);
+            String code = text.substring(index, index + length);
+                if (codes.containsKey(code)) {
+                    if (!generateItem(index + length, 1,
+                            word.concat(codes.get(code).toLowerCase()),sentence)) {
+                        return generateItem(index, length + 1, word,sentence);
+                    }
+                    else
+                    {
+                        return true;
+                    }
                 }
                 else
                 {
-                    return true;
+                    return false;
                 }
-            }
-            else
-            {
-                return false;
-            }
+
         }
-        else
-        {
+        else {
+            if (index + length == text.length()){
+                System.out.println(String.format("%s ", sentence));
+            }
+
             return false;
         }
     }
