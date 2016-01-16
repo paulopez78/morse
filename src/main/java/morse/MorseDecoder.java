@@ -18,23 +18,30 @@
          nextCode(0, 1, "", "");
      }
 
+     /* Recursive function generating all possible sentences for a morse encoded text.
+     The algorithm uses backtracking and cuts the generated tree as soon as possible
+     checking the words dictionary for every letter found.*/
      private static void nextCode(int index, int offset, String word, String sentence) {
          boolean outOfBounds = index + offset > text.length();
+
+         //check if valid word and add to the sentence, reset the word for a new search
          if (dictionary.contains(word)) {
              sentence = sentence + word + " ";
              word = "";
+             // A valid sentence can be printed
              if (outOfBounds) {
                  System.out.println(sentence.trim());
              }
          }
 
-         if (outOfBounds || !anyWordStartsWith(word)) {
-             return;
-         }
-         else {
+         // recursion exit condition checking every letter for cutting the recursion tree asap.
+         if (!outOfBounds && anyWordStartsWith(word)) {
              String code = text.substring(index, index + offset);
              if (codes.containsKey(code)) {
+                 // go to next index with the new word.
                  nextCode(index + offset, 1, word.concat(codes.get(code)), sentence);
+
+                 // go to next offset with the original word.
                  nextCode(index, offset + 1, word, sentence);
              }
          }
