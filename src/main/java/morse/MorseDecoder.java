@@ -14,6 +14,10 @@
      private static List<String> dictionary;
 
      public static void main(String[] args) throws IOException, URISyntaxException {
+         if (args.length > 0) {
+             text = args[0];
+         }
+
          dictionary = readDictionary("/dictionary.txt");
          nextCode(0, 1, "", "");
      }
