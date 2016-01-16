@@ -1,43 +1,41 @@
  package morse;
 
  import java.io.IOException;
+ import java.net.URISyntaxException;
  import java.nio.charset.Charset;
  import java.nio.file.Files;
+ import java.nio.file.Path;
  import java.nio.file.Paths;
  import java.util.*;
 
  public class MorseDecoder {
+     private final static Map<String,String> codes = createCodes();
      private static String text = ".--..-..-.-.-----.-----....--...-.-.-..-....--.-......----.";
-     private static Map<String,String> codes;
      private static List<String> dictionary;
 
-     public static void main(String[] args) throws IOException {
-         codes = createCodes();
-         dictionary = readDictionary("/users/pau/morse/src/main/resources/dictionary.txt");
+     public static void main(String[] args) throws IOException, URISyntaxException {
+         dictionary = readDictionary("/dictionary.txt");
          nextCode(0, 1, "", "");
      }
 
-     private static void nextCode(int index, int length, String word, String sentence) {
-         boolean outOfBounds = index + length > text.length();
-
+     private static void nextCode(int index, int offset, String word, String sentence) {
+         boolean outOfBounds = index + offset > text.length();
          if (dictionary.contains(word)) {
-             sentence = sentence + " " + word;
+             sentence = sentence + word + " ";
              word = "";
-             if (outOfBounds)
-             {
-                 System.out.println(sentence);
+             if (outOfBounds) {
+                 System.out.println(sentence.trim());
              }
          }
 
          if (outOfBounds || !anyWordStartsWith(word)) {
              return;
          }
-         else
-         {
-             String code = text.substring(index, index + length);
+         else {
+             String code = text.substring(index, index + offset);
              if (codes.containsKey(code)) {
-                 nextCode(index + length, 1, word.concat(codes.get(code)), sentence);
-                 nextCode(index, length + 1, word, sentence);
+                 nextCode(index + offset, 1, word.concat(codes.get(code)), sentence);
+                 nextCode(index, offset + 1, word, sentence);
              }
          }
      }
@@ -47,9 +45,9 @@
         return dictionary.stream().anyMatch(s -> s.startsWith(prefix));
     }
 
-    private static List<String> readDictionary(String fileName) throws IOException
-    {
-        return Files.readAllLines(Paths.get(fileName), Charset.defaultCharset());
+    private static List<String> readDictionary(String fileName) throws IOException, URISyntaxException {
+        Path p = Paths.get(MorseDecoder.class.getResource(fileName).toURI());
+        return Files.readAllLines(p, Charset.defaultCharset());
     }
 
     private static Map<String,String> createCodes()
