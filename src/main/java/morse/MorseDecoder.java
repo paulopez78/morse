@@ -32,7 +32,7 @@ public class MorseDecoder {
             parentItem = "";
         }
 
-        if (!outOfBounds && !maxLength)
+        if (!outOfBounds && !maxLength && anyWordStartsWith(parentItem))
         {
             String item = text.substring(index, index + length);
             if (codes.containsKey(item))
@@ -56,14 +56,18 @@ public class MorseDecoder {
         }
         else
         {
-            System.out.println(parentItem);
+            if (dictionary.contains(parentItem))
+            {
+                System.out.println(parentItem);
+            }
+
             return false;
         }
     }
 
-    private static boolean anyWordStartsWith(String path)
+    private static boolean anyWordStartsWith(String prefix)
     {
-        return dictionary.stream().anyMatch(s -> s.startsWith(path));
+        return dictionary.stream().anyMatch(s -> s.startsWith(prefix));
     }
 
     private static List<String> readDictionary(String fileName) throws IOException {
