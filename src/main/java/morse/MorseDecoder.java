@@ -8,10 +8,8 @@
 
  public class MorseDecoder {
 
-     private static String statictext = ".--..-..-.-.-----.-----....--...-.-.-..-....--.-......----.";
-     private static String text = ".--..-..-.-.-----.-----....--...-.-.-..-....--.-......----..";
+     private static String text = ".--..-..-.-.-----.-----....--...-.-.-..-....--.-......----.";
 
-    private static int MAX_LENGTH = 4;
     private static Map<String,String> codes;
     private static List<String> dictionary;
     public static void main(String[] args) throws IOException
@@ -22,38 +20,28 @@
         generateItem(0,1,"","");
     }
 
-
-    private static boolean generateItem(int index, int length, String word, String sentence) {
+    private static void generateItem(int index, int length, String word, String sentence) {
         boolean outOfBounds = index + length > text.length();
+
+        if (dictionary.contains(word)) {
+            sentence = sentence + " " + word;
+            word = "";
+        }
+
         if (outOfBounds || !anyWordStartsWith(word)) {
-            printCode(sentence);
-            return false;
+            if (outOfBounds){
+                System.out.println(sentence);
+            }
+            return;
         }
         else
         {
-            if (dictionary.contains(word)) {
-                sentence = sentence + " " + word;
-                word = "";
-            }
-
             String code = text.substring(index, index + length);
             if (codes.containsKey(code))
             {
                 String newWord = word.concat(codes.get(code).toLowerCase());
-                boolean generated = generateItem(index + length, 1, newWord, sentence);
-
-                if (!generated)
-                {
-                    return generateItem(index, length + 1, word, sentence);
-                }
-                else
-                {
-                    return true;
-                }
-            }
-            else
-            {
-                return false;
+                generateItem(index + length, 1, newWord, sentence);
+                generateItem(index, length + 1, word, sentence);
             }
         }
     }
@@ -66,31 +54,6 @@
     private static List<String> readDictionary(String fileName) throws IOException
     {
         return Files.readAllLines(Paths.get(fileName), Charset.defaultCharset());
-    }
-
-    private static void printCode(String sentence)
-    {
-        String morseCode = "";
-        for (char c:sentence.toCharArray())
-        {
-            if (c != ' ') {
-                morseCode += getKeyByValue(codes, Character.toString(c).toUpperCase());
-            }
-        }
-
-        if (statictext.equals(morseCode)){
-            System.out.println(sentence);
-            System.out.println(morseCode);
-        }
-    }
-
-    public static <T, E> T getKeyByValue(Map<T, E> map, E value) {
-        for (Map.Entry<T, E> entry : map.entrySet()) {
-            if (Objects.equals(value, entry.getValue())) {
-                return entry.getKey();
-            }
-        }
-        return null;
     }
 
     private static Map<String,String> createCodes()
