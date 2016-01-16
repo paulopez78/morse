@@ -8,7 +8,8 @@
 
  public class MorseDecoder {
 
-    private static String text = ".--..-..-.-.-----.-----....--...-.-.-..-....--.-......----";
+     private static String statictext = ".--..-..-.-.-----.-----....--...-.-.-..-....--.-......----.";
+     private static String text = ".--..-..-.-.-----.-----....--...-.-.-..-....--.-......----..";
 
     private static int MAX_LENGTH = 4;
     private static Map<String,String> codes;
@@ -17,34 +18,41 @@
     {
         codes = createCodes();
         dictionary = readDictionary("/users/pau/morse/src/main/resources/dictionary.txt");
+
         generateItem(0,1,"","");
     }
+
 
     private static boolean generateItem(int index, int length, String word, String sentence) {
         boolean outOfBounds = index + length > text.length();
         if (outOfBounds || !anyWordStartsWith(word)) {
-            if (outOfBounds) {
-                System.out.println(String.format("%s ", sentence));
-                printCode(sentence);
-            }
+            printCode(sentence);
             return false;
-        } else {
+        }
+        else
+        {
             if (dictionary.contains(word)) {
                 sentence = sentence + " " + word;
                 word = "";
             }
 
             String code = text.substring(index, index + length);
-            if (codes.containsKey(code)) {
+            if (codes.containsKey(code))
+            {
                 String newWord = word.concat(codes.get(code).toLowerCase());
                 boolean generated = generateItem(index + length, 1, newWord, sentence);
 
-                if (!generated) {
+                if (!generated)
+                {
                     return generateItem(index, length + 1, word, sentence);
-                } else {
+                }
+                else
+                {
                     return true;
                 }
-            } else {
+            }
+            else
+            {
                 return false;
             }
         }
@@ -70,7 +78,10 @@
             }
         }
 
-        System.out.println(morseCode);
+        if (statictext.equals(morseCode)){
+            System.out.println(sentence);
+            System.out.println(morseCode);
+        }
     }
 
     public static <T, E> T getKeyByValue(Map<T, E> map, E value) {
