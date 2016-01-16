@@ -4,13 +4,11 @@
  import java.nio.charset.Charset;
  import java.nio.file.Files;
  import java.nio.file.Paths;
- import java.util.HashMap;
- import java.util.List;
- import java.util.Map;
+ import java.util.*;
 
-public class MorseDecoder {
+ public class MorseDecoder {
 
-    private static String text = ".--..-..-.-.-----.-----....--...-.-.-..-....--.-......----.";
+    private static String text = ".--..-..-.-.-----.-----....--...-.-.-..-....--.-......----";
 
     private static int MAX_LENGTH = 4;
     private static Map<String,String> codes;
@@ -24,37 +22,31 @@ public class MorseDecoder {
 
     private static boolean generateItem(int index, int length, String word, String sentence) {
         boolean outOfBounds = index + length > text.length();
-        boolean maxLength = length > MAX_LENGTH;
-
-        if (!outOfBounds && !maxLength && anyWordStartsWith(word)) {
+        if (outOfBounds || !anyWordStartsWith(word)) {
+            if (outOfBounds) {
+                System.out.println(String.format("%s ", sentence));
+                printCode(sentence);
+            }
+            return false;
+        } else {
             if (dictionary.contains(word)) {
                 sentence = sentence + " " + word;
                 word = "";
             }
 
             String code = text.substring(index, index + length);
-                if (codes.containsKey(code)) {
-                    if (!generateItem(index + length, 1,
-                            word.concat(codes.get(code).toLowerCase()),sentence)) {
-                        return generateItem(index, length + 1, word,sentence);
-                    }
-                    else
-                    {
-                        return true;
-                    }
-                }
-                else
-                {
-                    return false;
-                }
+            if (codes.containsKey(code)) {
+                String newWord = word.concat(codes.get(code).toLowerCase());
+                boolean generated = generateItem(index + length, 1, newWord, sentence);
 
-        }
-        else {
-            if (index + length == text.length()){
-                System.out.println(String.format("%s ", sentence));
+                if (!generated) {
+                    return generateItem(index, length + 1, word, sentence);
+                } else {
+                    return true;
+                }
+            } else {
+                return false;
             }
-
-            return false;
         }
     }
 
@@ -63,8 +55,31 @@ public class MorseDecoder {
         return dictionary.stream().anyMatch(s -> s.startsWith(prefix));
     }
 
-    private static List<String> readDictionary(String fileName) throws IOException {
+    private static List<String> readDictionary(String fileName) throws IOException
+    {
         return Files.readAllLines(Paths.get(fileName), Charset.defaultCharset());
+    }
+
+    private static void printCode(String sentence)
+    {
+        String morseCode = "";
+        for (char c:sentence.toCharArray())
+        {
+            if (c != ' ') {
+                morseCode += getKeyByValue(codes, Character.toString(c).toUpperCase());
+            }
+        }
+
+        System.out.println(morseCode);
+    }
+
+    public static <T, E> T getKeyByValue(Map<T, E> map, E value) {
+        for (Map.Entry<T, E> entry : map.entrySet()) {
+            if (Objects.equals(value, entry.getValue())) {
+                return entry.getKey();
+            }
+        }
+        return null;
     }
 
     private static Map<String,String> createCodes()
